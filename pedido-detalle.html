@@ -8,7 +8,6 @@
 </head>
 <body>
 <header class="topbar">
-  <a class="back" id="link-volver" href="ventas.html">← Volver</a>
   <div class="brand">Detalle de pedido</div>
 </header>
 <main>
@@ -18,7 +17,10 @@
         <h2 id="nombre-cliente">Cargando…</h2>
         <p class="muted" id="fecha-entrega"></p>
       </div>
-      <button class="btn btn-outline btn-sm" id="btn-datos-cliente">Ver datos del cliente</button>
+      <div class="card-actions" style="margin-top:0;">
+        <button class="btn btn-outline btn-sm" id="btn-copiar-enlace">🔗 Copiar enlace para el cliente</button>
+        <button class="btn btn-outline btn-sm" id="btn-datos-cliente">Ver datos del cliente</button>
+      </div>
     </div>
 
     <div class="stat-grid">

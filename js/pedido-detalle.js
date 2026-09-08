@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import { ref as dbRef, onValue, get } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-import { escapeHtml, money, formatPrecio, qsGet, snapshotToArray } from "./utils.js";
+import { escapeHtml, money, formatPrecio, qsGet, snapshotToArray, toast } from "./utils.js";
 
 const codigoCliente = qsGet("codigoCliente");
 const codigoPedido = qsGet("codigoPedido");
@@ -13,7 +13,41 @@ const esCarols = nombreVendedora === "Carol´s" || nombreVendedora === "Carol's"
 
 document.getElementById("nombre-cliente").textContent = nombreCliente || "Cliente";
 document.getElementById("fecha-entrega").textContent = "Fecha de entrega: " + fechaDeEntrega;
-document.getElementById("link-volver").href = "ventas.html";
+
+function copiarConFallback(texto) {
+  const textarea = document.createElement("textarea");
+  textarea.value = texto;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch (e) {
+    ok = false;
+  }
+  document.body.removeChild(textarea);
+  return ok;
+}
+
+document.getElementById("btn-copiar-enlace").addEventListener("click", async () => {
+  const url = window.location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+    toast("Enlace copiado. Pégalo en WhatsApp para enviárselo al cliente.", "success");
+    return;
+  } catch (e) {
+    // Algunos navegadores (Safari en iOS, WebViews embebidos) bloquean la API moderna:
+    // se intenta con el método clásico antes de rendirse.
+  }
+  if (copiarConFallback(url)) {
+    toast("Enlace copiado. Pégalo en WhatsApp para enviárselo al cliente.", "success");
+  } else {
+    window.prompt("Copia este enlace manualmente:", url);
+  }
+});
 
 /* ---------- Piezas del pedido ---------- */
 onValue(dbRef(db, `PEDIDOS/${codigoCliente}/${codigoPedido}`), (snapshot) => {
