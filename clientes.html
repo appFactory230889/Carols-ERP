@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clientes · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="index.html">← Inicio</a>
+  <div class="brand">Clientes</div>
+  <nav>
+    <a href="ventas.html">Ventas</a>
+    <a href="clientes.html" class="active">Clientes</a>
+  </nav>
+</header>
+<main>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="carols">Clientes Carol´s</button>
+    <button class="tab-btn" data-tab="vendedoras">Clientes Vendedoras</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-carols">
+    <div class="search-row"><input type="text" id="buscar-carols" placeholder="Buscar cliente…" /></div>
+    <div id="lista-carols"><div class="loader">Cargando clientes…</div></div>
+  </div>
+  <div class="tab-panel" id="panel-vendedoras">
+    <div class="search-row"><input type="text" id="buscar-vendedoras" placeholder="Buscar cliente…" /></div>
+    <div id="lista-vendedoras"><div class="loader">Cargando clientes…</div></div>
+  </div>
+
+  <button class="fab" id="btn-agregar" title="Agregar cliente">+</button>
+</main>
+
+<!-- Modal: agregar / editar cliente -->
+<div class="modal-overlay" id="modal-cliente" hidden>
+  <div class="modal">
+    <h2 id="modal-titulo">Agregar cliente</h2>
+    <form id="form-cliente">
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" id="f-nombre" />
+        <div class="error-text">Ingrese el nombre del cliente.</div>
+      </div>
+      <div class="field">
+        <label>Dirección</label>
+        <input type="text" id="f-direccion" />
+        <div class="error-text">Ingrese la dirección del cliente.</div>
+      </div>
+      <div class="field" id="grupo-telefono">
+        <label>Teléfono</label>
+        <input type="tel" id="f-telefono" placeholder="Ej: 7777-7777" />
+        <div class="error-text">Ingrese el teléfono del cliente.</div>
+      </div>
+      <div class="field" id="grupo-departamento">
+        <label>Departamento</label>
+        <select id="f-departamento"><option value="">Seleccione…</option></select>
+        <div class="error-text">Seleccione un departamento.</div>
+      </div>
+      <div class="field" id="grupo-municipio">
+        <label>Municipio</label>
+        <select id="f-municipio"><option value="">Seleccione…</option></select>
+        <div class="error-text">Seleccione un municipio.</div>
+      </div>
+      <div id="grupo-vendedora" hidden>
+        <div class="field">
+          <label>Nombre de la vendedora</label>
+          <input type="text" id="f-nombre-vendedora" />
+        </div>
+        <div class="field">
+          <label>Teléfono de la vendedora</label>
+          <input type="tel" id="f-tel-vendedora" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" id="btn-cancelar-cliente">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-guardar-cliente">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: ficha del cliente (dirección/teléfono) + acceso a editar dirección -->
+<div class="modal-overlay" id="modal-editar" hidden>
+  <div class="modal">
+    <h2>Editar dirección</h2>
+    <p class="muted" style="margin-top:-8px;">Solo puede modificarse la dirección. Para cambiar nombre o teléfono, cree un nuevo cliente.</p>
+    <div class="field">
+      <label>Cliente</label>
+      <input type="text" id="e-nombre" disabled />
+    </div>
+    <div class="field">
+      <label>Teléfono</label>
+      <input type="text" id="e-telefono" disabled />
+    </div>
+    <div class="field">
+      <label>Departamento</label>
+      <select id="e-departamento"></select>
+    </div>
+    <div class="field">
+      <label>Municipio</label>
+      <select id="e-municipio"></select>
+    </div>
+    <div class="field">
+      <label>Dirección</label>
+      <input type="text" id="e-direccion" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-cancelar-editar">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-editar">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/clientes.js"></script>
+</body>
+</html>

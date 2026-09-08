@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Detalle de pedido · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="back" id="link-volver" href="ventas.html">← Volver</a>
+  <div class="brand">Detalle de pedido</div>
+</header>
+<main>
+  <div class="info-card">
+    <div class="card-row">
+      <div>
+        <h2 id="nombre-cliente">Cargando…</h2>
+        <p class="muted" id="fecha-entrega"></p>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btn-datos-cliente">Ver datos del cliente</button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box"><div class="label">Monto</div><div class="value" id="v-monto">$0.00</div></div>
+      <div class="stat-box"><div class="label">Más envío ($4.50)</div><div class="value" id="v-monto-envio">$0.00</div></div>
+      <div class="stat-box"><div class="label">Total anticipos</div><div class="value" id="v-anticipos">$0.00</div></div>
+      <div class="stat-box"><div class="label">Saldo pendiente</div><div class="value" id="v-saldo">$0.00</div></div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn btn-primary btn-sm" id="btn-asignar-comision" hidden>Asignar comisión</button>
+      <button class="btn btn-outline btn-sm" id="btn-exportar">Exportar a Excel</button>
+    </div>
+  </div>
+
+  <div class="section-title">Piezas del pedido</div>
+  <div class="info-card" style="overflow-x:auto;">
+    <table class="piezas-table">
+      <thead>
+        <tr><th>Talla</th><th>Color</th><th>Tela</th><th>Especificaciones</th><th>Precio</th><th>Estatus</th></tr>
+      </thead>
+      <tbody id="tabla-piezas"><tr><td colspan="6" class="loader">Cargando piezas…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="section-title">
+    Anticipos
+    <button class="btn btn-outline btn-sm" id="btn-mostrar-form-anticipo">+ Registrar anticipo</button>
+  </div>
+  <div class="info-card">
+    <div id="lista-anticipos"><div class="loader">Cargando anticipos…</div></div>
+
+    <div class="form-inline" id="form-anticipo" hidden>
+      <div class="field">
+        <label>Monto</label>
+        <input type="number" step="0.01" id="a-monto" placeholder="0.00" />
+      </div>
+      <div class="field">
+        <label>Comprobante (foto)</label>
+        <input type="file" id="a-foto" accept="image/*" />
+        <img id="a-preview" style="max-width:120px; border-radius:8px; margin-top:8px; display:none;" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-cancelar-anticipo">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-guardar-anticipo">Guardar anticipo</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal-datos-cliente" hidden>
+  <div class="modal">
+    <h2>Datos de la clienta</h2>
+    <p id="datos-cliente-texto"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-cerrar-datos">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/pedido-detalle.js"></script>
+</body>
+</html>

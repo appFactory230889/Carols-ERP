@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ventas · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="index.html">← Inicio</a>
+  <div class="brand">Ventas</div>
+  <nav>
+    <a href="ventas.html" class="active">Ventas</a>
+    <a href="clientes.html">Clientes</a>
+  </nav>
+</header>
+<main>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="carols">Carol´s</button>
+    <button class="tab-btn" data-tab="vendedoras">Vendedoras</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-carols">
+    <div id="lista-carols"><div class="loader">Cargando pedidos…</div></div>
+  </div>
+  <div class="tab-panel" id="panel-vendedoras">
+    <div id="lista-vendedoras"><div class="loader">Cargando pedidos…</div></div>
+  </div>
+</main>
+<script type="module" src="js/ventas.js"></script>
+</body>
+</html>
