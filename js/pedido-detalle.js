@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import { ref as dbRef, onValue, get } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-import { escapeHtml, money, qsGet, snapshotToArray } from "./utils.js";
+import { escapeHtml, money, formatPrecio, qsGet, snapshotToArray } from "./utils.js";
 
 const codigoCliente = qsGet("codigoCliente");
 const codigoPedido = qsGet("codigoPedido");
@@ -27,11 +27,11 @@ onValue(dbRef(db, `PEDIDOS/${codigoCliente}/${codigoPedido}`), (snapshot) => {
     .map(
       (p) => `<tr>
         <td>${p.foto ? `<a href="${p.foto}" target="_blank"><img class="pieza-foto" src="${p.foto}" alt="Foto de la prenda" /></a>` : ""}</td>
+        <td>${formatPrecio(p.precio)}</td>
         <td>${escapeHtml(p.talla)}</td>
         <td>${escapeHtml(p.color)}</td>
         <td>${escapeHtml(p.tipoDeTela)}</td>
         <td>${escapeHtml(p.especificaciones)}</td>
-        <td>${escapeHtml(p.precio)}</td>
       </tr>`
     )
     .join("");

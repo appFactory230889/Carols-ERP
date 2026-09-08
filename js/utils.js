@@ -27,6 +27,13 @@ export function money(n) {
   return "$" + v.toFixed(2);
 }
 
+// Como money(), pero sin ".00" cuando el precio es un número entero (ej. "$5" en vez de "$5.00").
+export function formatPrecio(n) {
+  const v = Number(n);
+  if (Number.isNaN(v)) return escapeHtml(n);
+  return Number.isInteger(v) ? `$${v}` : `$${v.toFixed(2)}`;
+}
+
 export function parseFechaDDMMYYYY(str) {
   if (!str) return null;
   const partes = str.trim().split("/");
