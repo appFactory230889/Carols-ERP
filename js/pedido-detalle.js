@@ -1,7 +1,7 @@
 import { db, storage } from "./firebase-config.js";
 import { ref as dbRef, onValue, get, update, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
-import { escapeHtml, money, qsGet, toast } from "./utils.js";
+import { escapeHtml, money, qsGet, toast, snapshotToArray } from "./utils.js";
 
 const codigoCliente = qsGet("codigoCliente");
 const codigoPedido = qsGet("codigoPedido");
@@ -23,16 +23,16 @@ let anticipoActualTotal = 0;
 
 /* ---------- Piezas del pedido ---------- */
 onValue(dbRef(db, `PEDIDOS/${codigoCliente}/${codigoPedido}`), (snapshot) => {
-  piezasActuales = [];
-  snapshot.forEach((child) => piezasActuales.push(child.val()));
+  piezasActuales = snapshotToArray(snapshot);
   const tbody = document.getElementById("tabla-piezas");
   if (!piezasActuales.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Sin piezas registradas.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Sin piezas registradas.</td></tr>';
     return;
   }
   tbody.innerHTML = piezasActuales
     .map(
       (p) => `<tr>
+        <td>${p.foto ? `<a href="${p.foto}" target="_blank"><img class="pieza-foto" src="${p.foto}" alt="Foto de la prenda" /></a>` : ""}</td>
         <td>${escapeHtml(p.talla)}</td>
         <td>${escapeHtml(p.color)}</td>
         <td>${escapeHtml(p.tipoDeTela)}</td>
@@ -160,9 +160,7 @@ function renderAnticipos(lista) {
 }
 
 onValue(dbRef(db, `PEDIDOS/${codigoCliente}/mis pedidos/${codigoPedido}/registroDeAnticipos`), (snapshot) => {
-  const lista = [];
-  snapshot.forEach((child) => lista.push(child.val()));
-  renderAnticipos(lista);
+  renderAnticipos(snapshotToArray(snapshot));
 });
 
 const formAnticipo = document.getElementById("form-anticipo");

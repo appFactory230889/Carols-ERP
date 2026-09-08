@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-import { escapeHtml, urgencyClass, qsGet, qsBuild } from "./utils.js";
+import { escapeHtml, urgencyClass, qsGet, qsBuild, snapshotToArray } from "./utils.js";
 
 const tel = qsGet("tel");
 const nombreVendedora = qsGet("nombreVendedora");
@@ -46,9 +46,7 @@ function render(pedidos) {
 
 if (tel) {
   onValue(ref(db, `PEDIDOS/${tel}/mis pedidos`), (snapshot) => {
-    const pedidos = [];
-    snapshot.forEach((child) => pedidos.push(child.val()));
-    render(pedidos);
+    render(snapshotToArray(snapshot));
   });
 } else {
   document.getElementById("lista-pedidos").innerHTML = '<div class="empty-state">Falta el teléfono del cliente en la URL.</div>';

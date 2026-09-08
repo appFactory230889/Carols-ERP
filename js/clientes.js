@@ -1,7 +1,7 @@
 import { db } from "./firebase-config.js";
 import { ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 import { DEPARTAMENTOS, MUNICIPIOS_POR_DEPARTAMENTO } from "./ubicaciones.js";
-import { escapeHtml, qsBuild, limpiarTelefono, toast } from "./utils.js";
+import { escapeHtml, qsBuild, limpiarTelefono, toast, snapshotToEntries, entriesFromValue } from "./utils.js";
 
 // Rutas Firebase:
 // - Clientes Carol's: TODOS LOS CLIENTES/CAROLS/{telefono}  (igual que en la app Android)
@@ -81,21 +81,18 @@ document.getElementById("buscar-vendedoras").addEventListener("input", (e) => {
 });
 
 onValue(ref(db, RUTA_CAROLS), (snapshot) => {
-  clientesCarols = [];
-  snapshot.forEach((child) => {
-    const c = child.val();
-    c._ruta = `${RUTA_CAROLS}/${child.key}`;
-    clientesCarols.push(c);
+  clientesCarols = snapshotToEntries(snapshot).map(([key, c]) => {
+    c._ruta = `${RUTA_CAROLS}/${key}`;
+    return c;
   });
   renderLista("lista-carols", filtrar(clientesCarols, document.getElementById("buscar-carols").value));
 });
 
 onValue(ref(db, RUTA_VENDEDORAS_RAIZ), (snapshot) => {
   clientesVendedoras = [];
-  snapshot.forEach((vendedoraSnap) => {
-    vendedoraSnap.forEach((clienteSnap) => {
-      const c = clienteSnap.val();
-      c._ruta = `${RUTA_VENDEDORAS_RAIZ}/${vendedoraSnap.key}/${clienteSnap.key}`;
+  snapshotToEntries(snapshot).forEach(([vendedoraKey, hijos]) => {
+    entriesFromValue(hijos).forEach(([clienteKey, c]) => {
+      c._ruta = `${RUTA_VENDEDORAS_RAIZ}/${vendedoraKey}/${clienteKey}`;
       clientesVendedoras.push(c);
     });
   });

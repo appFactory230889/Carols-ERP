@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import { ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-import { escapeHtml, urgencyClass, qsBuild, toast, confirmar } from "./utils.js";
+import { escapeHtml, urgencyClass, qsBuild, toast, confirmar, snapshotToArray } from "./utils.js";
 
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -64,11 +64,7 @@ function renderLista(contenedorId, pedidos, rutaNodo) {
 
 function escucharPedidos(rutaNodo, contenedorId) {
   onValue(ref(db, rutaNodo), (snapshot) => {
-    const pedidos = [];
-    snapshot.forEach((child) => {
-      pedidos.push(child.val());
-    });
-    renderLista(contenedorId, pedidos, rutaNodo);
+    renderLista(contenedorId, snapshotToArray(snapshot), rutaNodo);
   });
 }
 

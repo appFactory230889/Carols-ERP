@@ -79,3 +79,30 @@ export function toast(msg, tipo = "info") {
 export function confirmar(mensaje) {
   return window.confirm(mensaje);
 }
+
+// Cuando las keys de los hijos de un nodo son enteros pequeños y consecutivos
+// (ej. nodoID "1", "2"), Firebase representa internamente el nodo como un arreglo
+// con huecos null (ej. [null, pieza1, pieza2]), y snapshot.forEach() puede quedarse
+// solo con el primer hijo real. Por eso, para listar hijos de un nodo, usamos val()
+// directamente y normalizamos ambas formas (arreglo con huecos u objeto normal).
+// Normaliza el valor de un nodo Firebase (objeto normal, o arreglo con huecos
+// null cuando las keys son enteros pequeños y consecutivos) a pares [key, valor].
+export function entriesFromValue(val) {
+  if (val === null || val === undefined) return [];
+  if (Array.isArray(val)) {
+    return val
+      .map((v, i) => [String(i), v])
+      .filter(([, v]) => v !== null && v !== undefined);
+  }
+  return Object.entries(val);
+}
+
+export function snapshotToArray(snapshot) {
+  return entriesFromValue(snapshot.val()).map(([, v]) => v);
+}
+
+// Igual que snapshotToArray, pero conservando la key de cada hijo (ej. para
+// reconstruir la ruta de Firebase de cada registro).
+export function snapshotToEntries(snapshot) {
+  return entriesFromValue(snapshot.val());
+}
