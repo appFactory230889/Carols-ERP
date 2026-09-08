@@ -1,6 +1,6 @@
 :root {
-  --primary: #4338CA;
-  --primary-dark: #3730A3;
+  --primary: #000000;
+  --primary-dark: #262626;
   --bg: #F3F4F6;
   --card: #FFFFFF;
   --text: #1F2937;
@@ -327,10 +327,10 @@ table.piezas-table th, table.piezas-table td {
 }
 table.piezas-table th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
 .pieza-foto {
-  width: 52px;
-  height: 52px;
+  width: 140px;
+  height: 140px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   display: block;
 }
