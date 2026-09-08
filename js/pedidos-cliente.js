@@ -26,6 +26,7 @@ function render(pedidos) {
         nombreDeCliente: p.nombreCliente,
         fechaDeEntrega: p.fechaDeRecepcion,
         nombreVendedora: p.nombreVendedora || nombreVendedora,
+        panel: "1",
       });
       return `
       <div class="card ${clase}">

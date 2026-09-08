@@ -27,6 +27,7 @@ function renderLista(contenedorId, pedidos, rutaNodo) {
         nombreDeCliente: p.nombreCliente,
         fechaDeEntrega: p.fechaDeRecepcion,
         nombreVendedora: p.nombreVendedora,
+        panel: "1",
       });
       return `
       <div class="card ${clase}">

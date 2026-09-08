@@ -15,6 +15,10 @@
 
 * { box-sizing: border-box; }
 
+/* Algunos elementos (botones, etc.) fijan su propio "display", lo que anula el
+   comportamiento nativo del atributo hidden. Esta regla lo garantiza siempre. */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

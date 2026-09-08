@@ -14,6 +14,19 @@ const esCarols = nombreVendedora === "Carol´s" || nombreVendedora === "Carol's"
 document.getElementById("nombre-cliente").textContent = nombreCliente || "Cliente";
 document.getElementById("fecha-entrega").textContent = "Fecha de entrega: " + fechaDeEntrega;
 
+// El botón "Copiar enlace" solo se muestra cuando se llega desde el panel interno
+// (Ventas/Clientes agregan &panel=1 al link). Así, el link que le compartes al
+// cliente no trae esa marca y el botón no aparece en su versión.
+if (qsGet("panel") === "1") {
+  document.getElementById("btn-copiar-enlace").hidden = false;
+}
+
+function urlParaCompartir() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("panel");
+  return url.toString();
+}
+
 function copiarConFallback(texto) {
   const textarea = document.createElement("textarea");
   textarea.value = texto;
@@ -33,7 +46,7 @@ function copiarConFallback(texto) {
 }
 
 document.getElementById("btn-copiar-enlace").addEventListener("click", async () => {
-  const url = window.location.href;
+  const url = urlParaCompartir();
   try {
     await navigator.clipboard.writeText(url);
     toast("Enlace copiado. Pégalo en WhatsApp para enviárselo al cliente.", "success");
