@@ -88,7 +88,7 @@ onValue(dbRef(db, `PEDIDOS/${codigoCliente}/${codigoPedido}`), (snapshot) => {
       ([nodoID, p]) => `
       <div class="card">
         <div class="card-row">
-          ${p.foto ? `<a href="${p.foto}" target="_blank"><img class="pieza-foto" src="${p.foto}" alt="Foto de la prenda" style="width:80px;height:80px;" /></a>` : ""}
+          ${p.foto ? `<a href="${p.foto}" target="_blank"><img class="pieza-foto" src="${p.foto}" alt="Foto de la prenda" style="width:160px;height:160px;" /></a>` : ""}
           <div style="flex:1;">
             <h3>${escapeHtml(p.talla)} · ${escapeHtml(p.color)}</h3>
             <p>${escapeHtml(p.tipoDeTela)}</p>
