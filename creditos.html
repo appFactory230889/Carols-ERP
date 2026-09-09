@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cuentas por Pagar · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="index.html">← Inicio</a>
+  <div class="brand">Finanzas</div>
+  <nav>
+    <a href="finanzas.html">Movimientos</a>
+    <a href="creditos.html" class="active">Cuentas por Pagar</a>
+  </nav>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <div class="info-card">
+    <div class="label">Deuda total con proveedores</div>
+    <div class="value" id="v-deuda-total" style="font-size:1.4rem;">$0.00</div>
+  </div>
+
+  <div class="section-title">Acreedores</div>
+  <div id="lista-acreedores"><div class="loader">Cargando…</div></div>
+
+  <button class="fab" id="btn-agregar" title="Agregar acreedor">+</button>
+</main>
+
+<div class="modal-overlay" id="modal-acreedor" hidden>
+  <div class="modal">
+    <h2>Agregar acreedor</h2>
+    <div class="field">
+      <label>Nombre de la empresa/proveedor</label>
+      <input type="text" id="a-nombre" />
+      <div class="error-text">Ingrese el nombre de la empresa.</div>
+    </div>
+    <div class="field">
+      <label>Logo o imagen de referencia</label>
+      <input type="file" id="a-foto" accept="image/*" />
+      <div class="error-text">Seleccione una imagen.</div>
+      <img id="a-preview" style="max-width:120px; border-radius:8px; margin-top:8px; display:none;" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-cancelar-acreedor">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-acreedor">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/creditos.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Abonos del crédito · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" id="link-volver" href="creditos.html">← Volver</a>
+  <div class="brand">Abonos</div>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <div class="info-card">
+    <h2 id="nombre-acreedor" style="margin:0 0 4px;">Cargando…</h2>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="label">Monto solicitado</div><div class="value" id="v-monto">$0.00</div></div>
+      <div class="stat-box"><div class="label">Total abonado</div><div class="value" id="v-abonado">$0.00</div></div>
+      <div class="stat-box"><div class="label">Saldo pendiente</div><div class="value" id="v-saldo">$0.00</div></div>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-primary" id="btn-mostrar-form">+ Registrar abono</button>
+    </div>
+
+    <div class="form-inline" id="form-abono" hidden>
+      <div class="field">
+        <label>Monto del abono</label>
+        <input type="number" step="0.01" id="ab-monto" />
+      </div>
+      <div class="field">
+        <label>Comprobante (foto)</label>
+        <input type="file" id="ab-foto" accept="image/*" />
+        <img id="ab-preview" style="max-width:120px; border-radius:8px; margin-top:8px; display:none;" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-cancelar-abono">Cancelar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-guardar-abono">Guardar abono</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Historial de abonos</div>
+  <div id="lista-abonos"><div class="loader">Cargando…</div></div>
+</main>
+
+<script type="module" src="js/creditos-abonos.js"></script>
+</body>
+</html>

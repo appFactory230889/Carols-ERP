@@ -453,6 +453,107 @@ button, .btn {
   height: auto;
 }
 
+/* ---------- Gráficas (dashboards de Finanzas) ---------- */
+.chart-hbars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chart-hbar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  cursor: default;
+}
+.chart-hbar-label {
+  font-size: 0.82rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chart-hbar-track {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+.chart-hbar-fill {
+  height: 20px;
+  border-radius: 0 4px 4px 0;
+  transition: width 0.3s ease;
+}
+.chart-hbar-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  min-width: 64px;
+  text-align: right;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.chart-legend-item { display: flex; align-items: center; gap: 6px; }
+.chart-legend-key { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.chart-vbars {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.chart-vbar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  cursor: default;
+}
+.chart-vbar-pair {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 100%;
+}
+.chart-vbar {
+  width: 18px;
+  max-width: 24px;
+  border-radius: 4px 4px 0 0;
+  transition: opacity 0.15s;
+}
+.chart-vbar-group:hover .chart-vbar { opacity: 0.8; }
+.chart-vbar-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.chart-tooltip {
+  position: fixed;
+  z-index: 200;
+  display: none;
+  background: #1F2937;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  box-shadow: var(--shadow);
+}
+.chart-tooltip-fila { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.chart-tooltip-key { width: 8px; height: 8px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+
 @media (max-width: 480px) {
   header.topbar { padding: 12px 14px; }
   main { padding: 16px 10px 90px; }

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Créditos del acreedor · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="creditos.html">← Cuentas por Pagar</a>
+  <div class="brand">Créditos</div>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <div class="info-card">
+    <div class="card-row">
+      <img id="img-acreedor" style="width:56px;height:56px;border-radius:50%;display:none;" alt="" />
+      <div>
+        <h2 id="nombre-acreedor" style="margin:0 0 4px;">Cargando…</h2>
+        <p class="muted">Saldo pendiente total</p>
+      </div>
+    </div>
+    <div class="value" id="v-saldo-total" style="font-size:1.4rem;">$0.00</div>
+  </div>
+
+  <div class="section-title">Créditos registrados</div>
+  <div id="lista-creditos"><div class="loader">Cargando…</div></div>
+
+  <button class="fab" id="btn-agregar" title="Agregar crédito">+</button>
+</main>
+
+<div class="modal-overlay" id="modal-credito" hidden>
+  <div class="modal">
+    <h2>Agregar crédito</h2>
+    <div class="field">
+      <label>Monto solicitado</label>
+      <input type="number" step="0.01" id="c-monto" placeholder="0.00" />
+      <div class="error-text">Ingrese un monto válido.</div>
+    </div>
+    <div class="field">
+      <label>Fecha de adquisición de la deuda</label>
+      <input type="date" id="c-fecha-adquisicion" />
+    </div>
+    <div class="field">
+      <label>Fecha límite de pago</label>
+      <input type="date" id="c-fecha-limite" />
+    </div>
+    <div class="field">
+      <label>Foto de la factura (opcional)</label>
+      <input type="file" id="c-foto" accept="image/*" />
+      <img id="c-preview" style="max-width:120px; border-radius:8px; margin-top:8px; display:none;" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-cancelar-credito">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-credito">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/creditos-detalle.js"></script>
+</body>
+</html>

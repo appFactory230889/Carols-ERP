@@ -1,6 +1,7 @@
 import { db } from "./firebase-config.js";
 import { ref as dbRef, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 import { escapeHtml, money, toast, confirmar } from "./utils.js";
+import { renderBarChartCategorias, renderBarChartMensual } from "./charts.js";
 
 // Mismas categorías que ya se usaban en el control financiero en Excel del negocio.
 const CATEGORIAS = {
@@ -74,30 +75,16 @@ function actualizarTodo() {
 }
 
 function renderCategorias(lista) {
-  const cont = document.getElementById("lista-categorias");
   const porCategoria = {};
   lista.forEach((m) => {
     const cat = m.categoria || "Sin categoría";
     porCategoria[cat] = (porCategoria[cat] || 0) + (Number(m.monto) || 0);
   });
-  const categorias = Object.keys(porCategoria).sort((a, b) => porCategoria[b] - porCategoria[a]);
-  if (!categorias.length) {
-    cont.innerHTML = '<div class="empty-state">Sin movimientos en este rango.</div>';
-    return;
-  }
-  cont.innerHTML = categorias
-    .map(
-      (cat) => `
-      <div class="card-row" style="padding:6px 0;">
-        <span>${escapeHtml(cat)}</span>
-        <strong>${money(porCategoria[cat])}</strong>
-      </div>`
-    )
-    .join("");
+  const datos = Object.keys(porCategoria).map((label) => ({ label, value: porCategoria[label] }));
+  renderBarChartCategorias("lista-categorias", datos);
 }
 
 function renderMeses(lista) {
-  const cont = document.getElementById("lista-meses");
   const porPeriodo = {};
   lista.forEach((m) => {
     const p = m.periodo || "?";
@@ -105,24 +92,8 @@ function renderMeses(lista) {
     if (m.tipo === "Entrada") porPeriodo[p].entradas += Number(m.monto) || 0;
     else porPeriodo[p].salidas += Number(m.monto) || 0;
   });
-  const periodos = Object.keys(porPeriodo).sort().reverse();
-  if (!periodos.length) {
-    cont.innerHTML = '<div class="empty-state">Sin movimientos registrados todavía.</div>';
-    return;
-  }
-  cont.innerHTML = periodos
-    .map((p) => {
-      const { entradas, salidas } = porPeriodo[p];
-      return `
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border);">
-        <div>
-          <div style="font-weight:600;">${escapeHtml(p)}</div>
-          <div class="muted" style="font-size:0.8rem;">Entradas ${money(entradas)} · Salidas ${money(salidas)}</div>
-        </div>
-        <strong style="white-space:nowrap;">${money(entradas - salidas)}</strong>
-      </div>`;
-    })
-    .join("");
+  const datos = Object.keys(porPeriodo).map((periodo) => ({ periodo, ...porPeriodo[periodo] }));
+  renderBarChartMensual("lista-meses", datos);
 }
 
 function renderMovimientos(lista) {
