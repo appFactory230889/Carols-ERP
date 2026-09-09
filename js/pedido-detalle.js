@@ -93,7 +93,7 @@ onValue(dbRef(db, `PEDIDOS/${codigoCliente}/${codigoPedido}`), (snapshot) => {
             <h3>${escapeHtml(p.talla)} · ${escapeHtml(p.color)}</h3>
             <p>${escapeHtml(p.tipoDeTela)}</p>
             <p>${escapeHtml(p.especificaciones)}</p>
-            <p>Código: ${escapeHtml(p.codigoDePedido)}-${escapeHtml(nodoID)}</p>
+            <p>${escapeHtml(p.codigoDePedido)}-${escapeHtml(nodoID)}</p>
           </div>
           <div style="text-align:right;">
             <div class="value">${formatPrecio(p.precio)}</div>
