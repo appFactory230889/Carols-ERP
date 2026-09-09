@@ -3,41 +3,28 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Clientes · Carols50</title>
+<title>Clientes de la vendedora · Carols50</title>
 <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 <header class="topbar">
-  <a class="back" href="index.html">← Inicio</a>
-  <div class="brand">Clientes</div>
-  <nav>
-    <a href="ventas.html">Ventas</a>
-    <a href="clientes.html" class="active">Clientes</a>
-  </nav>
+  <a class="back" href="clientes.html">← Clientes</a>
+  <div class="brand">Administrador de Clientes de Vendedoras</div>
   <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
 </header>
 <main>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="carols">Clientes Carol´s</button>
-    <button class="tab-btn" data-tab="vendedoras">Clientes Vendedoras</button>
-  </div>
+  <h2 id="nombre-vendedora" style="margin-top:0;">Cargando…</h2>
 
-  <div class="tab-panel active" id="panel-carols">
-    <div class="search-row"><input type="text" id="buscar-carols" placeholder="Buscar cliente…" /></div>
-    <div id="lista-carols"><div class="loader">Cargando clientes…</div></div>
-  </div>
-  <div class="tab-panel" id="panel-vendedoras">
-    <div class="search-row"><input type="text" id="buscar-vendedoras" placeholder="Buscar vendedora…" /></div>
-    <div id="lista-vendedoras"><div class="loader">Cargando vendedoras…</div></div>
-  </div>
+  <div class="search-row"><input type="text" id="buscar-cliente" placeholder="Buscar cliente…" /></div>
+  <div id="lista-clientes"><div class="loader">Cargando clientes…</div></div>
 
   <button class="fab" id="btn-agregar" title="Agregar cliente">+</button>
 </main>
 
-<!-- Modal: agregar / editar cliente -->
+<!-- Modal: agregar cliente (para esta vendedora) -->
 <div class="modal-overlay" id="modal-cliente" hidden>
   <div class="modal">
-    <h2 id="modal-titulo">Agregar cliente</h2>
+    <h2>Agregar cliente</h2>
     <form id="form-cliente">
       <div class="field">
         <label>Nombre</label>
@@ -49,17 +36,17 @@
         <input type="text" id="f-direccion" />
         <div class="error-text">Ingrese la dirección del cliente.</div>
       </div>
-      <div class="field" id="grupo-telefono">
+      <div class="field">
         <label>Teléfono</label>
         <input type="tel" id="f-telefono" placeholder="Ej: 7777-7777" />
         <div class="error-text">Ingrese el teléfono del cliente.</div>
       </div>
-      <div class="field" id="grupo-departamento">
+      <div class="field">
         <label>Departamento</label>
         <select id="f-departamento"><option value="">Seleccione…</option></select>
         <div class="error-text">Seleccione un departamento.</div>
       </div>
-      <div class="field" id="grupo-municipio">
+      <div class="field">
         <label>Municipio</label>
         <select id="f-municipio"><option value="">Seleccione…</option></select>
         <div class="error-text">Seleccione un municipio.</div>
@@ -72,7 +59,7 @@
   </div>
 </div>
 
-<!-- Modal: ficha del cliente (dirección/teléfono) + acceso a editar dirección -->
+<!-- Modal: editar dirección -->
 <div class="modal-overlay" id="modal-editar" hidden>
   <div class="modal">
     <h2>Editar dirección</h2>
@@ -104,6 +91,6 @@
   </div>
 </div>
 
-<script type="module" src="js/clientes.js"></script>
+<script type="module" src="js/clientes-vendedora.js"></script>
 </body>
 </html>

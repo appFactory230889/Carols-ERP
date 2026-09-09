@@ -1,38 +1,22 @@
 import { db } from "./firebase-config.js";
 import { ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 import { DEPARTAMENTOS, MUNICIPIOS_POR_DEPARTAMENTO } from "./ubicaciones.js";
-import { escapeHtml, qsBuild, limpiarTelefono, toast, snapshotToEntries } from "./utils.js";
+import { escapeHtml, qsBuild, qsGet, limpiarTelefono, toast, snapshotToEntries } from "./utils.js";
 
-// Rutas Firebase:
-// - Clientes Carol's: TODOS LOS CLIENTES/CAROLS/{telefono}  (igual que en la app Android)
-// - Vendedoras (roster): VENDEDORAS/{telVendedora}  (VendedorasFragment en Android) — la pestaña
-//   "Clientes Vendedoras" muestra primero este listado de vendedoras; al elegir una se ven sus
-//   clientes en clientes-vendedora.html, que lee TODOS LOS CLIENTES/VENDEDORAS/{telVendedora}.
-const RUTA_CAROLS = "TODOS LOS CLIENTES/CAROLS";
-const RUTA_VENDEDORAS_ROSTER = "VENDEDORAS";
+const telVendedora = qsGet("tel");
+const nombreVendedora = qsGet("nombre");
+const codigoVendedora = qsGet("codigo");
 
-let clientesCarols = [];
-let vendedoras = [];
-let tabActiva = "carols";
+const RUTA_CLIENTES = `TODOS LOS CLIENTES/VENDEDORAS/${telVendedora}`;
 
-const btnAgregar = document.getElementById("btn-agregar");
+document.getElementById("nombre-vendedora").textContent = nombreVendedora || "Vendedora";
 
-document.querySelectorAll(".tab-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
-    tabActiva = btn.dataset.tab;
-    // Agregar cliente solo aplica a Carol's; las vendedoras se administran en otro módulo.
-    btnAgregar.hidden = tabActiva !== "carols";
-  });
-});
+let clientes = [];
 
-function renderClientesCarols(lista) {
-  const cont = document.getElementById("lista-carols");
+function renderLista(lista) {
+  const cont = document.getElementById("lista-clientes");
   if (!lista.length) {
-    cont.innerHTML = '<div class="empty-state">No hay clientes registrados.</div>';
+    cont.innerHTML = '<div class="empty-state">Esta vendedora no tiene clientes registrados.</div>';
     return;
   }
   cont.innerHTML = lista
@@ -41,8 +25,8 @@ function renderClientesCarols(lista) {
         tel: c.telefono,
         nombre: c.nombre,
         direccion: c.direccionCompleta,
-        nombreVendedora: c.nombreVendedor,
-        telVendedora: c.telVendedor,
+        nombreVendedora: c.nombreVendedor || nombreVendedora,
+        telVendedora: c.telVendedor || telVendedora,
       });
       return `
       <div class="card">
@@ -63,40 +47,9 @@ function renderClientesCarols(lista) {
 
   cont.querySelectorAll("[data-editar-idx]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const cliente = lista[Number(btn.dataset.editarIdx)];
-      abrirModalEditar(cliente, cliente._ruta);
+      abrirModalEditar(lista[Number(btn.dataset.editarIdx)]);
     });
   });
-}
-
-function renderVendedoras(lista) {
-  const cont = document.getElementById("lista-vendedoras");
-  if (!lista.length) {
-    cont.innerHTML = '<div class="empty-state">No hay vendedoras registradas.</div>';
-    return;
-  }
-  cont.innerHTML = lista
-    .map((v) => {
-      const params = qsBuild({
-        tel: v.telefonoColaborador,
-        nombre: v.nombreColaborador,
-        codigo: v.codigoColaborador,
-      });
-      return `
-      <div class="card">
-        <div class="card-row">
-          <div>
-            <h3>${escapeHtml(v.nombreColaborador)}</h3>
-            <p>${escapeHtml(v.codigoColaborador)}</p>
-            <p>${escapeHtml(v.perfilDeColaborador)} · Tel: ${escapeHtml(v.telefonoColaborador)}</p>
-          </div>
-        </div>
-        <div class="card-actions">
-          <a class="btn btn-primary btn-sm" href="clientes-vendedora.html?${params}">Ver clientes</a>
-        </div>
-      </div>`;
-    })
-    .join("");
 }
 
 function filtrar(lista, texto) {
@@ -105,25 +58,21 @@ function filtrar(lista, texto) {
   return lista.filter((c) => (c.seo || "").toLowerCase().includes(t));
 }
 
-document.getElementById("buscar-carols").addEventListener("input", (e) => {
-  renderClientesCarols(filtrar(clientesCarols, e.target.value));
-});
-document.getElementById("buscar-vendedoras").addEventListener("input", (e) => {
-  renderVendedoras(filtrar(vendedoras, e.target.value));
+document.getElementById("buscar-cliente").addEventListener("input", (e) => {
+  renderLista(filtrar(clientes, e.target.value));
 });
 
-onValue(ref(db, RUTA_CAROLS), (snapshot) => {
-  clientesCarols = snapshotToEntries(snapshot).map(([key, c]) => {
-    c._ruta = `${RUTA_CAROLS}/${key}`;
-    return c;
+if (telVendedora) {
+  onValue(ref(db, RUTA_CLIENTES), (snapshot) => {
+    clientes = snapshotToEntries(snapshot).map(([key, c]) => {
+      c._telefono = key;
+      return c;
+    });
+    renderLista(filtrar(clientes, document.getElementById("buscar-cliente").value));
   });
-  renderClientesCarols(filtrar(clientesCarols, document.getElementById("buscar-carols").value));
-});
-
-onValue(ref(db, RUTA_VENDEDORAS_ROSTER), (snapshot) => {
-  vendedoras = snapshotToEntries(snapshot).map(([, v]) => v);
-  renderVendedoras(filtrar(vendedoras, document.getElementById("buscar-vendedoras").value));
-});
+} else {
+  document.getElementById("lista-clientes").innerHTML = '<div class="empty-state">Falta el teléfono de la vendedora en la URL.</div>';
+}
 
 /* ---------- Selects Departamento / Municipio ---------- */
 function llenarDepartamentos(select) {
@@ -144,15 +93,14 @@ const eMunicipio = document.getElementById("e-municipio");
 llenarDepartamentos(eDepartamento);
 eDepartamento.addEventListener("change", () => llenarMunicipios(eMunicipio, eDepartamento.value));
 
-/* ---------- Modal agregar cliente (Carol's) ---------- */
+/* ---------- Modal agregar cliente ---------- */
 const modalCliente = document.getElementById("modal-cliente");
 const formCliente = document.getElementById("form-cliente");
 
-btnAgregar.addEventListener("click", () => {
+document.getElementById("btn-agregar").addEventListener("click", () => {
   formCliente.reset();
   llenarMunicipios(fMunicipio, "");
   document.querySelectorAll("#form-cliente .error-text, #form-cliente input, #form-cliente select").forEach((el) => el.classList.remove("visible", "error"));
-  document.getElementById("modal-titulo").textContent = "Agregar cliente Carol´s";
   modalCliente.hidden = false;
 });
 
@@ -197,13 +145,14 @@ formCliente.addEventListener("submit", async (e) => {
   const datosCliente = {
     nombre, direccion, direccionCompleta,
     telefono: telFiltrado,
-    codigoVendedor: "Carol´s",
-    nombreVendedor: "Carol´s",
+    codigoVendedor: codigoVendedora,
+    telVendedor: telVendedora,
+    nombreVendedor: nombreVendedora,
     departamento, municipio, seo,
   };
 
   try {
-    await set(ref(db, `${RUTA_CAROLS}/${telFiltrado}`), datosCliente);
+    await set(ref(db, `${RUTA_CLIENTES}/${telFiltrado}`), datosCliente);
     toast("Los datos se guardaron con éxito", "success");
     modalCliente.hidden = true;
   } catch (err) {
@@ -215,8 +164,8 @@ formCliente.addEventListener("submit", async (e) => {
 const modalEditar = document.getElementById("modal-editar");
 let editarContexto = null;
 
-function abrirModalEditar(cliente, ruta) {
-  editarContexto = { ruta };
+function abrirModalEditar(cliente) {
+  editarContexto = { telefono: cliente._telefono };
   document.getElementById("e-nombre").value = cliente.nombre || "";
   document.getElementById("e-telefono").value = cliente.telefono || "";
   document.getElementById("e-direccion").value = cliente.direccion || "";
@@ -239,7 +188,7 @@ document.getElementById("btn-guardar-editar").addEventListener("click", async ()
   }
   const direccionCompleta = `${direccion}, ${municipio}, ${departamento}`;
   try {
-    await update(ref(db, editarContexto.ruta), {
+    await update(ref(db, `${RUTA_CLIENTES}/${editarContexto.telefono}`), {
       direccion, direccionCompleta, departamento, municipio,
     });
     toast("Los datos se guardaron con éxito", "success");
