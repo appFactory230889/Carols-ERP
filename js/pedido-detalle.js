@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import { ref as dbRef, onValue, get } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-import { escapeHtml, money, formatPrecio, qsGet, snapshotToArray, toast } from "./utils.js";
+import { escapeHtml, money, formatPrecio, qsGet, qsBuild, snapshotToArray, toast } from "./utils.js";
 
 const codigoCliente = qsGet("codigoCliente");
 const codigoPedido = qsGet("codigoPedido");
@@ -14,11 +14,24 @@ const esCarols = nombreVendedora === "Carol´s" || nombreVendedora === "Carol's"
 document.getElementById("nombre-cliente").textContent = nombreCliente || "Cliente";
 document.getElementById("fecha-entrega").textContent = "Fecha de entrega: " + fechaDeEntrega;
 
-// El botón "Copiar enlace" solo se muestra cuando se llega desde el panel interno
-// (Ventas/Clientes agregan &panel=1 al link). Así, el link que le compartes al
-// cliente no trae esa marca y el botón no aparece en su versión.
+// El botón "Copiar enlace" y el de "Agregar prenda" solo se muestran cuando se llega
+// desde el panel interno (Ventas/Clientes agregan &panel=1 al link). Así, el link que
+// le compartes al cliente no trae esa marca y estos botones no aparecen en su versión.
 if (qsGet("panel") === "1") {
   document.getElementById("btn-copiar-enlace").hidden = false;
+
+  const btnAgregarPrenda = document.getElementById("btn-agregar-prenda");
+  btnAgregarPrenda.hidden = false;
+  btnAgregarPrenda.href =
+    "crear-pedido.html?" +
+    qsBuild({
+      tel: codigoCliente,
+      nombre: nombreCliente,
+      nombreVendedora,
+      codVendedora,
+      fechaDeEntrega,
+      codigoPedido, // presencia de este parámetro = modo "agregar piezas a un pedido ya existente"
+    });
 }
 
 function urlParaCompartir() {

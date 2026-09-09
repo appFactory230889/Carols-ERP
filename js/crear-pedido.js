@@ -21,16 +21,26 @@ const codigoColaborador = qsGet("codigoColaborador"); // código interno, solo p
 const esCarols = nombreVendedora === "Carol´s" || nombreVendedora === "Carol's";
 const destinoDePedido = esCarols ? "Pedidos Carol´s" : "Pedidos de Vendedoras";
 
+// Si la URL trae codigoPedido, estamos AGREGANDO piezas a un pedido ya existente y cerrado
+// (botón "+" de pedido-detalle.html, solo visible para el panel interno) — no se genera un
+// código nuevo, no se toca "Cerrar pedido"/VENTAS GLOBALES, y se restringe la eliminación de
+// otras propiedades del pedido: se limita únicamente a insertar piezas nuevas.
+const codigoPedidoExistente = qsGet("codigoPedido");
+const modoContinuar = Boolean(codigoPedidoExistente);
+const fechaDeEntregaExistente = qsGet("fechaDeEntrega");
+
 document.getElementById("nombre-cliente").textContent = nombreCliente || "Cliente";
-document.getElementById("link-volver").href =
-  "pedidos-cliente.html?" + qsBuild({ tel: codigoCliente, nombre: nombreCliente, direccion: direccionCliente, nombreVendedora, telVendedora });
 
 if (!codigoCliente) {
   document.querySelector("main").innerHTML = '<div class="empty-state">Falta el teléfono del cliente en la URL.</div>';
   throw new Error("Falta codigoCliente");
 }
 
-/* ---------- Estado del pedido en curso (persistido en este navegador) ---------- */
+function pad(n) {
+  return String(n).padStart(2, "0");
+}
+
+/* ---------- Estado del pedido en curso (persistido en este navegador, solo modo "crear nuevo") ---------- */
 const LS_KEY = `crearPedido_${codigoCliente}`;
 function cargarEstado() {
   try {
@@ -43,21 +53,41 @@ function guardarEstado() {
   localStorage.setItem(LS_KEY, JSON.stringify(estado));
 }
 
-function pad(n) {
-  return String(n).padStart(2, "0");
+let estado = cargarEstado() || { codigoPedido: null };
+let codigoPedido;
+if (modoContinuar) {
+  codigoPedido = codigoPedidoExistente;
+  document.getElementById("link-volver").href =
+    "pedido-detalle.html?" +
+    qsBuild({
+      codigoCliente, codigoPedido, codVendedora, nombreDeCliente: nombreCliente,
+      fechaDeEntrega: fechaDeEntregaExistente, nombreVendedora, panel: "1",
+    });
+  document.getElementById("codigo-pedido-info").textContent = `Agregando piezas al pedido: ${codigoPedido}`;
+  document.querySelector(".info-card .card-actions").hidden = true;
+} else {
+  if (!estado.codigoPedido) {
+    const ahora = new Date();
+    estado.codigoPedido = `${pad(ahora.getHours())}${pad(ahora.getMinutes())}${pad(ahora.getSeconds())}`;
+    guardarEstado();
+  }
+  codigoPedido = estado.codigoPedido;
+  document.getElementById("codigo-pedido-info").textContent = `Código de pedido: ${codigoPedido}`;
+  document.getElementById("link-volver").href =
+    "pedidos-cliente.html?" + qsBuild({ tel: codigoCliente, nombre: nombreCliente, direccion: direccionCliente, nombreVendedora, telVendedora });
 }
-
-let estado = cargarEstado() || { codigoPedido: null, nodoID: 0 };
-if (!estado.codigoPedido) {
-  const ahora = new Date();
-  estado.codigoPedido = `${pad(ahora.getHours())}${pad(ahora.getMinutes())}${pad(ahora.getSeconds())}`;
-  guardarEstado();
-}
-const codigoPedido = estado.codigoPedido;
-document.getElementById("codigo-pedido-info").textContent = `Código de pedido: ${codigoPedido}`;
 
 const RUTA_PIEZAS = `PEDIDOS/${codigoCliente}/${codigoPedido}`;
 const RUTA_RESUMEN = `PEDIDOS/${codigoCliente}/mis pedidos/${codigoPedido}`;
+
+// Siguiente nodoID: se calcula siempre a partir de lo que ya existe en Firebase (más robusto
+// que llevar un contador local — funciona igual para un pedido nuevo o uno ya existente).
+async function siguienteNodoID() {
+  const snap = await get(dbRef(db, RUTA_PIEZAS));
+  const entradas = snapshotToEntries(snap);
+  const max = entradas.reduce((m, [k]) => Math.max(m, Number(k) || 0), 0);
+  return String(max + 1);
+}
 
 /* ---------- Tabs ---------- */
 document.querySelectorAll(".tab-btn").forEach((btn) => {
@@ -69,9 +99,18 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
   });
 });
 
-/* ---------- Fecha de recepción (por defecto, hoy) ---------- */
+/* ---------- Fecha de recepción ---------- */
 const inputFecha = document.getElementById("f-fecha");
-inputFecha.valueAsDate = new Date();
+if (modoContinuar) {
+  // Se mantiene la misma fecha de entrega ya acordada con la clienta para este pedido.
+  get(dbRef(db, `${RUTA_RESUMEN}/fechaDeRecepcion`)).then((snap) => {
+    const [d, m, y] = String(snap.val() || "").split("/").map(Number);
+    if (d && m && y) inputFecha.value = `${y}-${pad(m)}-${pad(d)}`;
+    else inputFecha.valueAsDate = new Date();
+  });
+} else {
+  inputFecha.valueAsDate = new Date();
+}
 
 function fechaDDMMYYYY() {
   const [y, m, d] = inputFecha.value.split("-").map(Number);
@@ -254,9 +293,7 @@ document.getElementById("btn-guardar-prenda").addEventListener("click", async ()
       fotoUrl = await getDownloadURL(refFoto);
     }
 
-    estado.nodoID = (estado.nodoID || 0) + 1;
-    const nodoIDstr = String(estado.nodoID);
-    guardarEstado();
+    const nodoIDstr = await siguienteNodoID();
 
     const fecha = fechaDDMMYYYY();
 
@@ -281,14 +318,19 @@ document.getElementById("btn-guardar-prenda").addEventListener("click", async ()
 
     await set(dbRef(db, `${RUTA_PIEZAS}/${nodoIDstr}`), datosPieza);
     await recalcularMonto();
-    await update(dbRef(db, RUTA_RESUMEN), {
-      nombreCliente,
-      fechaDeRecepcion: fecha,
-      codigoDeCliente: codigoCliente,
-      codigoDePedido: codigoPedido,
-      estatus: "abierto",
-      ultimoNodo: nodoIDstr,
-    });
+    // En modo "agregar a pedido existente" no se toca el estatus (ya está "cerrado" y debe
+    // seguir así) ni la fecha de recepción original — solo se refleja el nuevo último nodo.
+    const datosResumen = modoContinuar
+      ? { ultimoNodo: nodoIDstr }
+      : {
+          nombreCliente,
+          fechaDeRecepcion: fecha,
+          codigoDeCliente: codigoCliente,
+          codigoDePedido: codigoPedido,
+          estatus: "abierto",
+          ultimoNodo: nodoIDstr,
+        };
+    await update(dbRef(db, RUTA_RESUMEN), datosResumen);
 
     toast(`Prenda #${nodoIDstr} agregada.`, "success");
 
@@ -329,7 +371,7 @@ const btnCerrarPedido = document.getElementById("btn-cerrar-pedido");
 onValue(dbRef(db, RUTA_PIEZAS), (snapshot) => {
   const piezas = snapshotToEntries(snapshot);
   document.getElementById("v-cuenta-piezas").textContent = String(piezas.length);
-  btnCerrarPedido.hidden = piezas.length === 0;
+  btnCerrarPedido.hidden = modoContinuar || piezas.length === 0;
   renderPiezas(piezas);
 });
 
@@ -401,6 +443,7 @@ btnCerrarPedido.addEventListener("click", async () => {
   const fechaDeCreacion = new Intl.DateTimeFormat("es", {
     day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
   }).format(new Date());
+  const ultimoNodoSnap = await get(dbRef(db, `${RUTA_RESUMEN}/ultimoNodo`));
 
   const registro = {
     nombreCliente,
@@ -412,7 +455,7 @@ btnCerrarPedido.addEventListener("click", async () => {
     codVendedora: codVendedora || "",
     nombreVendedora: nombreVendedora || "",
     seo: `${nombreCliente}${codigoPedido}`,
-    ultimoNodo: String(estado.nodoID || 0),
+    ultimoNodo: String(ultimoNodoSnap.val() || "0"),
   };
 
   try {
