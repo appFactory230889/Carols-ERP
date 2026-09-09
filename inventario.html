@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inventario · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="index.html">← Inicio</a>
+  <div class="brand">Inventario Global</div>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <div class="tabs tabs-scroll" id="tabs-inventario"></div>
+  <div id="paneles-inventario"></div>
+
+  <button class="fab" id="btn-agregar-color" title="Agregar color">+</button>
+</main>
+
+<!-- Modal: actualizar cantidad de un color -->
+<div class="modal-overlay" id="modal-actualizar" hidden>
+  <div class="modal">
+    <h2>Actualizar inventario</h2>
+    <p class="muted" id="ac-color-nombre" style="margin-top:-8px;"></p>
+    <div class="field">
+      <label>Yardas disponibles</label>
+      <input type="number" step="0.01" id="ac-cantidad" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-poner-cero">Poner en cero</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-cantidad">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: agregar color nuevo -->
+<div class="modal-overlay" id="modal-agregar-color" hidden>
+  <div class="modal">
+    <h2>Agregar color</h2>
+    <p class="muted" id="col-tela-nombre" style="margin-top:-8px;"></p>
+    <div class="field">
+      <label>Nombre del color</label>
+      <input type="text" id="col-nombre" placeholder="Ej: Rosa vieja" />
+      <div class="error-text">Ingrese el nombre del color.</div>
+    </div>
+    <div class="field">
+      <label>Imagen de referencia</label>
+      <input type="file" id="col-foto" accept="image/*" />
+      <div class="error-text">Seleccione una imagen de referencia.</div>
+      <img id="col-preview" style="max-width:120px; border-radius:8px; margin-top:8px; display:none;" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-cancelar-color">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-color">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/inventario.js"></script>
+</body>
+</html>

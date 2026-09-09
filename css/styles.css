@@ -105,6 +105,17 @@ main {
   color: #fff;
 }
 
+/* Variante para muchas pestañas (ej. Inventario: 6 tipos de tela) — se desplaza
+   horizontalmente en vez de comprimir cada botón hasta hacerlo ilegible. */
+.tabs-scroll {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+.tabs-scroll .tab-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
