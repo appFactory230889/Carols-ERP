@@ -1,5 +1,6 @@
-import { db } from "./firebase-config.js";
+import { db, storage } from "./firebase-config.js";
 import { ref as dbRef, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
 import { escapeHtml, money, toast, confirmar } from "./utils.js";
 import { renderBarChartCategorias, renderBarChartMensual } from "./charts.js";
 
@@ -108,7 +109,8 @@ function renderMovimientos(lista) {
       (m) => `
       <div class="card">
         <div class="card-row">
-          <div>
+          ${m.fotoComprobante ? `<a href="${m.fotoComprobante}" target="_blank"><img class="pieza-foto" src="${m.fotoComprobante}" alt="Comprobante" style="width:56px;height:56px;" /></a>` : ""}
+          <div style="flex:1;">
             <h3>${escapeHtml(m.categoria)}</h3>
             <p>${escapeHtml(m.fecha)} · ${escapeHtml(m.tipo)}</p>
           </div>
@@ -147,12 +149,29 @@ function llenarCategorias() {
 }
 mTipo.addEventListener("change", llenarCategorias);
 
+let archivoComprobante = null;
+const mFoto = document.getElementById("m-foto");
+const mPreview = document.getElementById("m-preview");
+
 document.getElementById("btn-agregar").addEventListener("click", () => {
   mFecha.value = hoyISO();
   mTipo.value = "Entrada";
   llenarCategorias();
   mMonto.value = "";
+  mFoto.value = "";
+  mPreview.style.display = "none";
+  archivoComprobante = null;
   modal.hidden = false;
+});
+
+mFoto.addEventListener("change", (e) => {
+  archivoComprobante = e.target.files[0] || null;
+  if (archivoComprobante) {
+    mPreview.src = URL.createObjectURL(archivoComprobante);
+    mPreview.style.display = "block";
+  } else {
+    mPreview.style.display = "none";
+  }
 });
 
 document.getElementById("btn-cancelar-movimiento").addEventListener("click", () => (modal.hidden = true));
@@ -167,21 +186,37 @@ document.getElementById("btn-guardar-movimiento").addEventListener("click", asyn
   const [y, m] = mFecha.value.split("-");
   const periodo = `${y}-${m}`;
 
-  const datos = {
-    fecha,
-    tipo: mTipo.value,
-    categoria: mCategoria.value,
-    monto,
-    periodo,
-  };
+  const btn = document.getElementById("btn-guardar-movimiento");
+  btn.disabled = true;
+  btn.textContent = "Guardando…";
 
   try {
     const nuevaRef = push(dbRef(db, `FINANZAS/${periodo}`));
+
+    let fotoComprobante = "";
+    if (archivoComprobante) {
+      const refFoto = storageRef(storage, `FINANZAS_COMPROBANTES/${periodo}/${nuevaRef.key}.jpg`);
+      await uploadBytes(refFoto, archivoComprobante);
+      fotoComprobante = await getDownloadURL(refFoto);
+    }
+
+    const datos = {
+      fecha,
+      tipo: mTipo.value,
+      categoria: mCategoria.value,
+      monto,
+      periodo,
+      ...(fotoComprobante ? { fotoComprobante } : {}),
+    };
+
     await set(nuevaRef, datos);
     await update(dbRef(db, `FINANZAS/Periodos/${periodo}`), { periodo });
     toast("Movimiento registrado.", "success");
     modal.hidden = true;
   } catch (e) {
     toast("Error al guardar: " + e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Guardar";
   }
 });

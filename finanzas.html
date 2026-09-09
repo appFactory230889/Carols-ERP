@@ -13,6 +13,7 @@
   <nav>
     <a href="finanzas.html" class="active">Movimientos</a>
     <a href="creditos.html">Cuentas por Pagar</a>
+    <a href="distribucion.html">Distribución</a>
   </nav>
   <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
 </header>
@@ -73,6 +74,11 @@
     <div class="field">
       <label>Monto</label>
       <input type="number" step="0.01" id="m-monto" placeholder="0.00" />
+    </div>
+    <div class="field">
+      <label>Comprobante (foto, opcional)</label>
+      <input type="file" id="m-foto" accept="image/*" />
+      <img id="m-preview" style="max-width:120px; border-radius:8px; margin-top:8px; display:none;" />
     </div>
     <div class="modal-actions">
       <button type="button" class="btn btn-outline" id="btn-cancelar-movimiento">Cancelar</button>
