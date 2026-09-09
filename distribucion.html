@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Distribución · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="index.html">← Inicio</a>
+  <div class="brand">Finanzas</div>
+  <nav>
+    <a href="finanzas.html">Movimientos</a>
+    <a href="creditos.html">Cuentas por Pagar</a>
+    <a href="distribucion.html" class="active">Distribución</a>
+  </nav>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <p class="muted" style="margin-top:0;">
+    Cada Entrada que se registra en Finanzas (ventas, anticipos, etc.) se reparte automáticamente
+    entre estas cuentas según su porcentaje. El reparto se calcula cada vez que alguien abre esta
+    página — si nadie la abre en varios días, se pone al día con todo lo pendiente la próxima vez.
+  </p>
+
+  <div class="section-title">
+    Saldo actual por cuenta
+    <span id="v-suma-porcentaje" class="muted" style="font-weight:400; font-size:0.8rem;"></span>
+  </div>
+  <div id="lista-cuentas"><div class="loader">Cargando…</div></div>
+
+  <div class="section-title">Cuánto entró por cuenta en un rango de fechas</div>
+  <div class="info-card">
+    <div class="card-row" style="align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+      <div class="field" style="margin:0;">
+        <label>Desde</label>
+        <input type="date" id="f-desde" />
+      </div>
+      <div class="field" style="margin:0;">
+        <label>Hasta</label>
+        <input type="date" id="f-hasta" />
+      </div>
+    </div>
+    <div id="lista-rango"><div class="loader">Cargando…</div></div>
+  </div>
+
+  <button class="fab" id="btn-agregar" title="Agregar cuenta">+</button>
+</main>
+
+<div class="modal-overlay" id="modal-cuenta" hidden>
+  <div class="modal">
+    <h2>Agregar cuenta</h2>
+    <div class="field">
+      <label>Nombre de la cuenta</label>
+      <input type="text" id="cu-nombre" placeholder="Ej: Caja Chica" />
+      <div class="error-text">Ingrese el nombre de la cuenta.</div>
+    </div>
+    <div class="field">
+      <label>Porcentaje (%)</label>
+      <input type="number" step="0.01" id="cu-porcentaje" placeholder="0.00" />
+      <div class="error-text">Ingrese un porcentaje válido.</div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-cancelar-cuenta">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-cuenta">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-editar-cuenta" hidden>
+  <div class="modal">
+    <h2>Editar cuenta</h2>
+    <div class="field">
+      <label>Nombre de la cuenta</label>
+      <input type="text" id="ce-nombre" />
+    </div>
+    <div class="field">
+      <label>Porcentaje (%)</label>
+      <input type="number" step="0.01" id="ce-porcentaje" />
+    </div>
+    <div class="modal-actions" style="justify-content:space-between;">
+      <button type="button" class="btn btn-danger" id="btn-eliminar-cuenta">Eliminar cuenta</button>
+      <div style="display:flex; gap:10px;">
+        <button type="button" class="btn btn-outline" id="btn-cancelar-editar-cuenta">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-guardar-editar-cuenta">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/distribucion.js"></script>
+</body>
+</html>
