@@ -430,6 +430,32 @@ table.piezas-table th { color: var(--text-muted); font-weight: 600; font-size: 0
 .home-card:hover { border-color: var(--primary); }
 .home-card .icon { font-size: 2.2rem; display: block; margin-bottom: 10px; }
 
+.hero-logo {
+  text-align: center;
+  padding: 30px 10px 10px;
+}
+.hero-logo img {
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+}
+
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 30px 16px 40px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.site-footer img {
+  height: 28px;
+  width: auto;
+}
+
 @media (max-width: 480px) {
   header.topbar { padding: 12px 14px; }
   main { padding: 16px 10px 90px; }

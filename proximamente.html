@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Próximamente · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="index.html">← Inicio</a>
+  <div class="brand" id="titulo-modulo">Próximamente</div>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <div class="info-card" style="text-align:center; padding:48px 20px;">
+    <div style="font-size:2.4rem; margin-bottom:10px;">🚧</div>
+    <h2 id="mensaje-modulo" style="margin:0 0 8px;">Este módulo estará disponible próximamente</h2>
+    <p class="muted">Estamos trabajando en esta sección. Vuelve pronto.</p>
+    <div class="card-actions" style="justify-content:center; margin-top:18px;">
+      <a class="btn btn-primary" href="index.html">Volver al inicio</a>
+    </div>
+  </div>
+</main>
+<script>
+  const modulo = new URLSearchParams(window.location.search).get("modulo");
+  if (modulo) {
+    document.getElementById("titulo-modulo").textContent = modulo;
+    document.getElementById("mensaje-modulo").textContent = `${modulo} estará disponible próximamente`;
+    document.title = `${modulo} · Carols50`;
+  }
+</script>
+</body>
+</html>
