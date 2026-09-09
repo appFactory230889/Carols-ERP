@@ -66,6 +66,12 @@ header.topbar nav a.active, header.topbar nav a:hover, header.topbar .back:hover
   color: #fff;
 }
 
+header.topbar .topbar-logo {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
 main {
   max-width: 900px;
   margin: 0 auto;
