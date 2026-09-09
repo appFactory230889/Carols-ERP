@@ -3,12 +3,22 @@ import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.2/firebas
 import { escapeHtml, urgencyClass, qsGet, qsBuild, snapshotToArray } from "./utils.js";
 
 const tel = qsGet("tel");
+const nombre = qsGet("nombre");
+const direccion = qsGet("direccion");
 const nombreVendedora = qsGet("nombreVendedora");
 const telVendedora = qsGet("telVendedora");
+const codVendedora = qsGet("codVendedora");
+const codigoColaborador = qsGet("codigoColaborador");
 
-document.getElementById("nombre-cliente").textContent = qsGet("nombre") || "Cliente";
-document.getElementById("direccion-cliente").textContent = qsGet("direccion") || "";
+document.getElementById("nombre-cliente").textContent = nombre || "Cliente";
+document.getElementById("direccion-cliente").textContent = direccion || "";
 document.getElementById("telefono-cliente").textContent = "teléfono: " + tel;
+
+document.getElementById("btn-crear-pedido").href =
+  "crear-pedido.html?" +
+  qsBuild({
+    tel, nombre, direccion, nombreVendedora, telVendedora, codVendedora, codigoColaborador,
+  });
 
 function render(pedidos) {
   const cont = document.getElementById("lista-pedidos");

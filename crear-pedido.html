@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Crear pedido · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" id="link-volver" href="pedidos-cliente.html">← Volver</a>
+  <div class="brand">Creación de Pedidos</div>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <div class="info-card">
+    <h2 id="nombre-cliente" style="margin:0 0 4px;">Cargando…</h2>
+    <p class="muted" id="codigo-pedido-info"></p>
+    <div class="stat-grid" style="margin-top:10px;">
+      <div class="stat-box"><div class="label">Piezas agregadas</div><div class="value" id="v-cuenta-piezas">0</div></div>
+      <div class="stat-box"><div class="label">Monto acumulado</div><div class="value" id="v-monto">$0.00</div></div>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-primary" id="btn-cerrar-pedido" hidden>Cerrar pedido</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="agregar">Agregar Prenda</button>
+    <button class="tab-btn" data-tab="detalle">Detalle del Pedido</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-agregar">
+    <div class="info-card">
+      <div class="field">
+        <label>Fecha de recepción del pedido</label>
+        <input type="date" id="f-fecha" />
+        <div class="error-text">Seleccione la fecha de recepción.</div>
+      </div>
+
+      <div class="field">
+        <label>¿Cómo quieres agregar la prenda?</label>
+        <div class="card-actions" style="margin-top:0;">
+          <button type="button" class="btn btn-outline btn-sm active-metodo" id="btn-metodo-foto">📷 Subir foto propia</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-metodo-catalogo">📖 Buscar en catálogo</button>
+        </div>
+      </div>
+
+      <div id="bloque-foto">
+        <div class="field">
+          <label>Foto de la prenda</label>
+          <input type="file" id="f-foto" accept="image/*" />
+        </div>
+      </div>
+
+      <div id="bloque-catalogo" hidden>
+        <div class="field">
+          <label>Código del catálogo</label>
+          <div class="card-actions" style="margin-top:0;">
+            <input type="text" id="f-codigo-catalogo" placeholder="Ej: 1031" style="flex:1; padding:10px 12px; border-radius:8px; border:1px solid var(--border);" />
+            <button type="button" class="btn btn-outline btn-sm" id="btn-buscar-catalogo">Buscar</button>
+          </div>
+          <div class="error-text" id="error-catalogo">No se encontró ese código en el catálogo.</div>
+        </div>
+      </div>
+
+      <img id="preview-foto" style="max-width:160px; border-radius:10px; margin:4px 0 14px; display:none;" />
+
+      <div class="field">
+        <label>Especificaciones</label>
+        <textarea id="f-especificaciones" rows="2" placeholder="Datos específicos de la prenda o de la clienta"></textarea>
+        <div class="error-text">Complete los datos de la prenda.</div>
+      </div>
+
+      <div class="field">
+        <label>Talla</label>
+        <select id="f-talla">
+          <option value="">Seleccione…</option>
+          <option value="XXS">XXS</option>
+          <option value="XS">XS</option>
+          <option value="S">S</option>
+          <option value="M">M</option>
+          <option value="L">L</option>
+          <option value="XL">XL</option>
+          <option value="XXL">XXL</option>
+        </select>
+        <div class="error-text">Seleccione una talla.</div>
+      </div>
+
+      <div class="field">
+        <label>Tipo de tela</label>
+        <select id="f-tela"><option value="">Seleccione…</option></select>
+        <div class="error-text">Seleccione un tipo de tela.</div>
+      </div>
+
+      <div class="field" id="grupo-color-swatches" hidden>
+        <label>Color</label>
+        <div id="lista-colores" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+        <div class="error-text">Seleccione un color.</div>
+      </div>
+
+      <div class="field" id="grupo-color-texto" hidden>
+        <label>Color</label>
+        <input type="text" id="f-color-texto" placeholder="Color de la prenda" />
+        <div class="error-text">Ingrese el color de la prenda.</div>
+      </div>
+
+      <div class="field">
+        <label>Precio</label>
+        <input type="number" step="0.01" id="f-precio" placeholder="0.00" />
+      </div>
+
+      <div class="modal-actions" style="justify-content:flex-start;">
+        <button type="button" class="btn btn-primary" id="btn-guardar-prenda">Guardar y continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-detalle">
+    <div id="lista-piezas"><div class="loader">Cargando piezas…</div></div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal-editar-precio" hidden>
+  <div class="modal">
+    <h2>Editar precio</h2>
+    <div class="field">
+      <label>Precio</label>
+      <input type="number" step="0.01" id="ep-precio" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-cancelar-precio">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-precio">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/crear-pedido.js"></script>
+</body>
+</html>

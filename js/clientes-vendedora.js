@@ -27,6 +27,10 @@ function renderLista(lista) {
         direccion: c.direccionCompleta,
         nombreVendedora: c.nombreVendedor || nombreVendedora,
         telVendedora: c.telVendedor || telVendedora,
+        // codVendedora = teléfono de la vendedora (así se guarda en los pedidos, ver pedido-detalle.js);
+        // codigoColaborador = código interno (ej. "122957"), solo se usa para PEDIDOS GLOBALES al crear un pedido.
+        codVendedora: c.telVendedor || telVendedora,
+        codigoColaborador: codigoVendedora,
       });
       return `
       <div class="card">
