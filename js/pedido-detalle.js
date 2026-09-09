@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import { ref as dbRef, onValue, get } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-import { escapeHtml, money, formatPrecio, qsGet, qsBuild, snapshotToArray, toast } from "./utils.js";
+import { escapeHtml, money, formatPrecio, qsGet, qsBuild, snapshotToEntries, snapshotToArray, toast } from "./utils.js";
 
 const codigoCliente = qsGet("codigoCliente");
 const codigoPedido = qsGet("codigoPedido");
@@ -77,22 +77,29 @@ document.getElementById("btn-copiar-enlace").addEventListener("click", async () 
 
 /* ---------- Piezas del pedido ---------- */
 onValue(dbRef(db, `PEDIDOS/${codigoCliente}/${codigoPedido}`), (snapshot) => {
-  const piezas = snapshotToArray(snapshot);
-  const tbody = document.getElementById("tabla-piezas");
-  if (!piezas.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Sin piezas registradas.</td></tr>';
+  const cont = document.getElementById("lista-piezas");
+  const entradas = snapshotToEntries(snapshot);
+  if (!entradas.length) {
+    cont.innerHTML = '<div class="empty-state">Sin piezas registradas.</div>';
     return;
   }
-  tbody.innerHTML = piezas
+  cont.innerHTML = entradas
     .map(
-      (p) => `<tr>
-        <td>${p.foto ? `<a href="${p.foto}" target="_blank"><img class="pieza-foto" src="${p.foto}" alt="Foto de la prenda" /></a>` : ""}</td>
-        <td>${formatPrecio(p.precio)}</td>
-        <td>${escapeHtml(p.talla)}</td>
-        <td>${escapeHtml(p.color)}</td>
-        <td>${escapeHtml(p.tipoDeTela)}</td>
-        <td>${escapeHtml(p.especificaciones)}</td>
-      </tr>`
+      ([nodoID, p]) => `
+      <div class="card">
+        <div class="card-row">
+          ${p.foto ? `<a href="${p.foto}" target="_blank"><img class="pieza-foto" src="${p.foto}" alt="Foto de la prenda" style="width:80px;height:80px;" /></a>` : ""}
+          <div style="flex:1;">
+            <h3>${escapeHtml(p.talla)} · ${escapeHtml(p.color)}</h3>
+            <p>${escapeHtml(p.tipoDeTela)}</p>
+            <p>${escapeHtml(p.especificaciones)}</p>
+            <p>Código: ${escapeHtml(p.codigoDePedido)}-${escapeHtml(nodoID)}</p>
+          </div>
+          <div style="text-align:right;">
+            <div class="value">${formatPrecio(p.precio)}</div>
+          </div>
+        </div>
+      </div>`
     )
     .join("");
 });

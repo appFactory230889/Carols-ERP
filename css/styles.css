@@ -325,17 +325,6 @@ button, .btn {
 .stat-box .label { font-size: 0.75rem; color: var(--text-muted); }
 .stat-box .value { font-size: 1.05rem; font-weight: 700; margin-top: 2px; }
 
-table.piezas-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.87rem;
-}
-table.piezas-table th, table.piezas-table td {
-  padding: 8px 10px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-table.piezas-table th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
 .pieza-foto {
   width: 140px;
   height: 140px;
