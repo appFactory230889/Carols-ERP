@@ -410,11 +410,19 @@ table.piezas-table th { color: var(--text-muted); font-weight: 600; font-size: 0
   font-size: 0.9rem;
 }
 
-.home-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+.home-columns {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.home-col {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  margin-top: 12px;
+  width: 160px;
 }
 
 .home-card {
@@ -437,23 +445,12 @@ table.piezas-table th { color: var(--text-muted); font-weight: 600; font-size: 0
 
 .hero-logo {
   text-align: center;
-  padding: 12px 10px 2px;
+  padding: 12px 10px 6px;
 }
 .hero-logo img {
-  max-width: 170px;
+  max-width: 280px;
   width: 100%;
   height: auto;
-}
-
-.site-footer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 8px 16px 12px;
-}
-.site-footer img {
-  height: 22px;
-  width: auto;
 }
 
 @media (max-width: 480px) {
