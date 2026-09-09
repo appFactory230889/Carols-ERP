@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Finanzas · Carols50</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="index.html">← Inicio</a>
+  <div class="brand">Finanzas</div>
+  <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
+</header>
+<main>
+  <div class="info-card">
+    <div class="card-row" style="align-items:flex-end; flex-wrap:wrap; gap:12px;">
+      <div class="field" style="margin:0;">
+        <label>Desde</label>
+        <input type="date" id="f-desde" />
+      </div>
+      <div class="field" style="margin:0;">
+        <label>Hasta</label>
+        <input type="date" id="f-hasta" />
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box"><div class="label">Entradas</div><div class="value" id="v-entradas">$0.00</div></div>
+      <div class="stat-box"><div class="label">Salidas</div><div class="value" id="v-salidas">$0.00</div></div>
+      <div class="stat-box"><div class="label">Utilidad</div><div class="value" id="v-utilidad">$0.00</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Resumen por categoría</div>
+  <div class="info-card">
+    <div id="lista-categorias"><div class="loader">Cargando…</div></div>
+  </div>
+
+  <div class="section-title">Resumen mensual</div>
+  <div class="info-card">
+    <div id="lista-meses"><div class="loader">Cargando…</div></div>
+  </div>
+
+  <div class="section-title">Movimientos en el rango seleccionado</div>
+  <div id="lista-movimientos"><div class="loader">Cargando…</div></div>
+
+  <button class="fab" id="btn-agregar" title="Registrar movimiento">+</button>
+</main>
+
+<div class="modal-overlay" id="modal-movimiento" hidden>
+  <div class="modal">
+    <h2>Registrar movimiento</h2>
+    <div class="field">
+      <label>Fecha</label>
+      <input type="date" id="m-fecha" />
+    </div>
+    <div class="field">
+      <label>Tipo</label>
+      <select id="m-tipo">
+        <option value="Entrada">Entrada</option>
+        <option value="Salida">Salida</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Categoría</label>
+      <select id="m-categoria"></select>
+    </div>
+    <div class="field">
+      <label>Monto</label>
+      <input type="number" step="0.01" id="m-monto" placeholder="0.00" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="btn-cancelar-movimiento">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-guardar-movimiento">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/finanzas.js"></script>
+</body>
+</html>
