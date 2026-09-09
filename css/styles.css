@@ -1,7 +1,7 @@
 :root {
   --primary: #000000;
   --primary-dark: #262626;
-  --bg: #F3F4F6;
+  --bg: #FFFFFF;
   --card: #FFFFFF;
   --text: #1F2937;
   --text-muted: #6B7280;
@@ -10,7 +10,7 @@
   --rojo: #F44336;
   --amarillo: #FBC02D;
   --radius: 10px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow: 0 2px 10px rgba(0,0,0,0.09), 0 1px 3px rgba(0,0,0,0.08);
 }
 
 * { box-sizing: border-box; }
@@ -412,47 +412,47 @@ table.piezas-table th { color: var(--text-muted); font-weight: 600; font-size: 0
 
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .home-card {
   background: var(--card);
-  border-radius: 14px;
-  padding: 28px 20px;
+  border-radius: 12px;
+  padding: 14px 10px;
   text-align: center;
   box-shadow: var(--shadow);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 0.88rem;
   border: 1px solid var(--border);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-.home-card:hover { border-color: var(--primary); }
-.home-card .icon { font-size: 2.2rem; display: block; margin-bottom: 10px; }
+.home-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+}
+.home-card .icon { font-size: 1.5rem; display: block; margin-bottom: 4px; }
 
 .hero-logo {
   text-align: center;
-  padding: 30px 10px 10px;
+  padding: 12px 10px 2px;
 }
 .hero-logo img {
-  max-width: 320px;
+  max-width: 170px;
   width: 100%;
   height: auto;
 }
 
 .site-footer {
   display: flex;
-  flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  gap: 6px;
-  padding: 30px 16px 40px;
-  color: var(--text-muted);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  padding: 8px 16px 12px;
 }
 .site-footer img {
-  height: 28px;
+  height: 22px;
   width: auto;
 }
 
