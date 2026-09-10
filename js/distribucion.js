@@ -1,6 +1,6 @@
 import { db } from "./firebase-config.js";
 import { ref as dbRef, onValue, get, set, update, remove, push, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-import { escapeHtml, money, toast, confirmar } from "./utils.js";
+import { escapeHtml, money, toast, confirmar, snapshotToEntries } from "./utils.js";
 import { renderBarChartCategorias } from "./charts.js";
 
 const RUTA_CUENTAS = "DISTRIBUCION/Cuentas";
@@ -47,20 +47,27 @@ async function repartirPendientes() {
   const [cuentasSnap, finanzasSnap] = await Promise.all([get(dbRef(db, RUTA_CUENTAS)), get(dbRef(db, "FINANZAS"))]);
   if (!cuentasSnap.exists()) return;
 
-  const listaCuentas = [];
-  cuentasSnap.forEach((c) => listaCuentas.push({ id: c.key, ...c.val() }));
+  const listaCuentas = snapshotToEntries(cuentasSnap).map(([id, v]) => ({ id, ...v }));
   if (!listaCuentas.length) return;
 
   const pendientes = [];
-  finanzasSnap.forEach((periodoSnap) => {
-    if (periodoSnap.key === "Periodos") return;
-    periodoSnap.forEach((mSnap) => {
-      const m = mSnap.val();
+  snapshotToEntries(finanzasSnap).forEach(([periodoKey, periodoVal]) => {
+    if (periodoKey === "Periodos") return;
+    snapshotToEntries({ val: () => periodoVal }).forEach(([movKey, m]) => {
       if (m.tipo === "Entrada" && !m.distribuido) {
-        pendientes.push({ periodo: periodoSnap.key, key: mSnap.key, ...m });
+        pendientes.push({ periodo: periodoKey, key: movKey, ...m });
       }
     });
   });
+
+  if (!pendientes.length) return;
+
+  // Se acumulan los deltas en memoria y se aplican con una sola transacción por cuenta/día
+  // (en vez de una transacción por cada movimiento) — más rápido y más confiable con muchos
+  // movimientos pendientes a la vez.
+  const deltaPorCuenta = {};
+  const deltaPorDia = {};
+  listaCuentas.forEach((c) => (deltaPorCuenta[c.id] = 0));
 
   for (const mov of pendientes) {
     const monto = Number(mov.monto) || 0;
@@ -69,20 +76,41 @@ async function repartirPendientes() {
     for (const cuenta of listaCuentas) {
       const parte = Math.round(((monto * (Number(cuenta.porcentaje) || 0)) / 100) * 100) / 100;
       if (!parte) continue;
-      await runTransaction(dbRef(db, `${RUTA_CUENTAS}/${cuenta.id}/saldo`), (actual) => (Number(actual) || 0) + parte);
-      await runTransaction(dbRef(db, `${RUTA_HISTORIAL}/${fechaISO}/${cuenta.id}`), (actual) => (Number(actual) || 0) + parte);
+      deltaPorCuenta[cuenta.id] += parte;
+      const clave = `${fechaISO}|${cuenta.id}`;
+      deltaPorDia[clave] = (deltaPorDia[clave] || 0) + parte;
     }
-    await update(dbRef(db, `FINANZAS/${mov.periodo}/${mov.key}`), { distribuido: true });
   }
+
+  for (const cuenta of listaCuentas) {
+    const delta = deltaPorCuenta[cuenta.id];
+    if (!delta) continue;
+    const r = await runTransaction(dbRef(db, `${RUTA_CUENTAS}/${cuenta.id}/saldo`), (actual) => Math.round(((Number(actual) || 0) + delta) * 100) / 100);
+    if (!r.committed) throw new Error(`No se pudo actualizar el saldo de la cuenta ${cuenta.nombre}`);
+  }
+  for (const [clave, delta] of Object.entries(deltaPorDia)) {
+    const [fechaISO, cuentaId] = clave.split("|");
+    const r = await runTransaction(dbRef(db, `${RUTA_HISTORIAL}/${fechaISO}/${cuentaId}`), (actual) => Math.round(((Number(actual) || 0) + delta) * 100) / 100);
+    if (!r.committed) throw new Error(`No se pudo actualizar el historial de ${fechaISO}`);
+  }
+
+  const marcas = {};
+  pendientes.forEach((mov) => {
+    marcas[`FINANZAS/${mov.periodo}/${mov.key}/distribuido`] = true;
+  });
+  await update(dbRef(db), marcas);
 }
 
-await asegurarCuentasPorDefecto();
-await repartirPendientes();
+try {
+  await asegurarCuentasPorDefecto();
+  await repartirPendientes();
+} catch (e) {
+  toast("Error al repartir los ingresos pendientes: " + e.message, "error");
+}
 
 /* ---------- Render de cuentas (saldo actual) ---------- */
 onValue(dbRef(db, RUTA_CUENTAS), (snapshot) => {
-  cuentas = [];
-  snapshot.forEach((c) => cuentas.push({ id: c.key, ...c.val() }));
+  cuentas = snapshotToEntries(snapshot).map(([id, v]) => ({ id, ...v }));
   renderCuentas();
   actualizarRango();
 });
@@ -135,12 +163,11 @@ function actualizarRango() {
     const totalesPorCuenta = {};
     cuentas.forEach((c) => (totalesPorCuenta[c.id] = 0));
 
-    snapshot.forEach((diaSnap) => {
-      const fecha = diaSnap.key;
+    snapshotToEntries(snapshot).forEach(([fecha, diaVal]) => {
       if (fecha < inputDesde.value || fecha > inputHasta.value) return;
-      diaSnap.forEach((cuentaSnap) => {
-        if (totalesPorCuenta[cuentaSnap.key] === undefined) totalesPorCuenta[cuentaSnap.key] = 0;
-        totalesPorCuenta[cuentaSnap.key] += Number(cuentaSnap.val()) || 0;
+      snapshotToEntries({ val: () => diaVal }).forEach(([cuentaId, monto]) => {
+        if (totalesPorCuenta[cuentaId] === undefined) totalesPorCuenta[cuentaId] = 0;
+        totalesPorCuenta[cuentaId] += Number(monto) || 0;
       });
     });
 
