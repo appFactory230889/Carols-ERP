@@ -18,21 +18,8 @@
   <img class="topbar-logo" src="https://firebasestorage.googleapis.com/v0/b/distribuidora-carols.firebasestorage.app/o/logo%2Fblack.JPG?alt=media&token=a3f3dc44-4ea4-4c9d-bb01-bcd5e7c2a281" alt="Carol's" />
 </header>
 <main>
-  <p class="muted" style="margin-top:0;">
-    Cada Entrada que se registra en Finanzas (ventas, anticipos, etc.) se reparte automáticamente
-    entre estas cuentas según su porcentaje. El reparto se calcula cada vez que alguien abre esta
-    página — si nadie la abre en varios días, se pone al día con todo lo pendiente la próxima vez.
-  </p>
-
-  <div class="section-title">
-    Saldo actual por cuenta
-    <span id="v-suma-porcentaje" class="muted" style="font-weight:400; font-size:0.8rem;"></span>
-  </div>
-  <div id="lista-cuentas"><div class="loader">Cargando…</div></div>
-
-  <div class="section-title">Cuánto entró por cuenta en un rango de fechas</div>
-  <div class="info-card">
-    <div class="card-row" style="align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+  <div class="info-card" style="margin-top:0;">
+    <div class="card-row" style="align-items:flex-end; flex-wrap:wrap; gap:12px;">
       <div class="field" style="margin:0;">
         <label>Desde</label>
         <input type="date" id="f-desde" />
@@ -42,6 +29,16 @@
         <input type="date" id="f-hasta" />
       </div>
     </div>
+  </div>
+
+  <div class="section-title">
+    Cuánto entró por cuenta
+    <span id="v-suma-porcentaje" class="muted" style="font-weight:400; font-size:0.8rem;"></span>
+  </div>
+  <div id="lista-cuentas"><div class="loader">Cargando…</div></div>
+
+  <div class="section-title">Comparativo por cuenta</div>
+  <div class="info-card">
     <div id="lista-rango"><div class="loader">Cargando…</div></div>
   </div>
 

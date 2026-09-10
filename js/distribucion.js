@@ -24,6 +24,10 @@ function hoyISO() {
   const d = new Date();
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+function primerDiaMesISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-01`;
+}
 // "dd/mm/yyyy" (como se guarda en FINANZAS) -> "yyyy-mm-dd" (clave de Firebase, sin "/")
 function fechaAISO(fechaStr) {
   const [d, m, y] = String(fechaStr || "").split("/").map(Number);
@@ -31,14 +35,14 @@ function fechaAISO(fechaStr) {
   return `${y}-${pad(m)}-${pad(d)}`;
 }
 
-let cuentas = []; // [{id, nombre, porcentaje, saldo}]
+let cuentas = []; // [{id, nombre, porcentaje}]
 
 async function asegurarCuentasPorDefecto() {
   const snap = await get(dbRef(db, RUTA_CUENTAS));
   if (snap.exists()) return;
   for (const c of CUENTAS_POR_DEFECTO) {
     const nuevaRef = push(dbRef(db, RUTA_CUENTAS));
-    await set(nuevaRef, { nombre: c.nombre, porcentaje: c.porcentaje, saldo: 0 });
+    await set(nuevaRef, { nombre: c.nombre, porcentaje: c.porcentaje });
   }
 }
 
@@ -65,9 +69,7 @@ async function repartirPendientes() {
   // Se acumulan los deltas en memoria y se aplican con una sola transacción por cuenta/día
   // (en vez de una transacción por cada movimiento) — más rápido y más confiable con muchos
   // movimientos pendientes a la vez.
-  const deltaPorCuenta = {};
   const deltaPorDia = {};
-  listaCuentas.forEach((c) => (deltaPorCuenta[c.id] = 0));
 
   for (const mov of pendientes) {
     const monto = Number(mov.monto) || 0;
@@ -76,18 +78,11 @@ async function repartirPendientes() {
     for (const cuenta of listaCuentas) {
       const parte = Math.round(((monto * (Number(cuenta.porcentaje) || 0)) / 100) * 100) / 100;
       if (!parte) continue;
-      deltaPorCuenta[cuenta.id] += parte;
       const clave = `${fechaISO}|${cuenta.id}`;
       deltaPorDia[clave] = (deltaPorDia[clave] || 0) + parte;
     }
   }
 
-  for (const cuenta of listaCuentas) {
-    const delta = deltaPorCuenta[cuenta.id];
-    if (!delta) continue;
-    const r = await runTransaction(dbRef(db, `${RUTA_CUENTAS}/${cuenta.id}/saldo`), (actual) => Math.round(((Number(actual) || 0) + delta) * 100) / 100);
-    if (!r.committed) throw new Error(`No se pudo actualizar el saldo de la cuenta ${cuenta.nombre}`);
-  }
   for (const [clave, delta] of Object.entries(deltaPorDia)) {
     const [fechaISO, cuentaId] = clave.split("|");
     const r = await runTransaction(dbRef(db, `${RUTA_HISTORIAL}/${fechaISO}/${cuentaId}`), (actual) => Math.round(((Number(actual) || 0) + delta) * 100) / 100);
@@ -108,14 +103,40 @@ try {
   toast("Error al repartir los ingresos pendientes: " + e.message, "error");
 }
 
-/* ---------- Render de cuentas (saldo actual) ---------- */
+/* ---------- Render de cuentas + comparativo, ambos según el rango de fechas ---------- */
 onValue(dbRef(db, RUTA_CUENTAS), (snapshot) => {
   cuentas = snapshotToEntries(snapshot).map(([id, v]) => ({ id, ...v }));
-  renderCuentas();
-  actualizarRango();
+  actualizarTodo();
 });
 
-function renderCuentas() {
+const inputDesde = document.getElementById("f-desde");
+const inputHasta = document.getElementById("f-hasta");
+inputDesde.value = primerDiaMesISO();
+inputHasta.value = hoyISO();
+inputDesde.addEventListener("change", actualizarTodo);
+inputHasta.addEventListener("change", actualizarTodo);
+
+function actualizarTodo() {
+  if (!cuentas.length) return;
+  get(dbRef(db, RUTA_HISTORIAL)).then((snapshot) => {
+    const totalesPorCuenta = {};
+    cuentas.forEach((c) => (totalesPorCuenta[c.id] = 0));
+
+    snapshotToEntries(snapshot).forEach(([fecha, diaVal]) => {
+      if (fecha < inputDesde.value || fecha > inputHasta.value) return;
+      snapshotToEntries({ val: () => diaVal }).forEach(([cuentaId, monto]) => {
+        if (totalesPorCuenta[cuentaId] === undefined) totalesPorCuenta[cuentaId] = 0;
+        totalesPorCuenta[cuentaId] += Number(monto) || 0;
+      });
+    });
+
+    renderCuentas(totalesPorCuenta);
+    const datos = cuentas.map((c) => ({ label: c.nombre, value: totalesPorCuenta[c.id] || 0 }));
+    renderBarChartCategorias("lista-rango", datos);
+  });
+}
+
+function renderCuentas(totalesPorCuenta) {
   const cont = document.getElementById("lista-cuentas");
   const sumaPorcentaje = cuentas.reduce((acc, c) => acc + (Number(c.porcentaje) || 0), 0);
   const spanSuma = document.getElementById("v-suma-porcentaje");
@@ -136,7 +157,7 @@ function renderCuentas() {
             <p>${c.porcentaje}% de cada entrada</p>
           </div>
           <div style="text-align:right;">
-            <div class="value">${money(c.saldo)}</div>
+            <div class="value">${money(totalesPorCuenta[c.id] || 0)}</div>
             <button class="btn btn-outline btn-sm" data-editar="${escapeHtml(c.id)}" style="margin-top:6px;">Editar</button>
           </div>
         </div>
@@ -146,33 +167,6 @@ function renderCuentas() {
 
   cont.querySelectorAll("[data-editar]").forEach((btn) => {
     btn.addEventListener("click", () => abrirModalEditar(btn.dataset.editar));
-  });
-}
-
-/* ---------- Rango de fechas: cuánto entró a cada cuenta ---------- */
-const inputDesde = document.getElementById("f-desde");
-const inputHasta = document.getElementById("f-hasta");
-inputDesde.value = hoyISO();
-inputHasta.value = hoyISO();
-inputDesde.addEventListener("change", actualizarRango);
-inputHasta.addEventListener("change", actualizarRango);
-
-function actualizarRango() {
-  if (!cuentas.length) return;
-  get(dbRef(db, RUTA_HISTORIAL)).then((snapshot) => {
-    const totalesPorCuenta = {};
-    cuentas.forEach((c) => (totalesPorCuenta[c.id] = 0));
-
-    snapshotToEntries(snapshot).forEach(([fecha, diaVal]) => {
-      if (fecha < inputDesde.value || fecha > inputHasta.value) return;
-      snapshotToEntries({ val: () => diaVal }).forEach(([cuentaId, monto]) => {
-        if (totalesPorCuenta[cuentaId] === undefined) totalesPorCuenta[cuentaId] = 0;
-        totalesPorCuenta[cuentaId] += Number(monto) || 0;
-      });
-    });
-
-    const datos = cuentas.map((c) => ({ label: c.nombre, value: totalesPorCuenta[c.id] || 0 }));
-    renderBarChartCategorias("lista-rango", datos);
   });
 }
 
@@ -202,7 +196,7 @@ document.getElementById("btn-guardar-cuenta").addEventListener("click", async ()
   }
   try {
     const nuevaRef = push(dbRef(db, RUTA_CUENTAS));
-    await set(nuevaRef, { nombre, porcentaje: Number(porcentaje), saldo: 0 });
+    await set(nuevaRef, { nombre, porcentaje: Number(porcentaje) });
     toast("Cuenta agregada.", "success");
     modalAgregar.hidden = true;
   } catch (e) {
@@ -241,7 +235,7 @@ document.getElementById("btn-guardar-editar-cuenta").addEventListener("click", a
 });
 
 document.getElementById("btn-eliminar-cuenta").addEventListener("click", async () => {
-  if (!confirmar("¿Eliminar esta cuenta? Su saldo acumulado y su historial no se borrarán del reparto ya hecho, pero dejará de recibir nuevos repartos.")) return;
+  if (!confirmar("¿Eliminar esta cuenta? Lo ya repartido no se borrará del historial, pero dejará de recibir nuevos repartos.")) return;
   try {
     await remove(dbRef(db, `${RUTA_CUENTAS}/${cuentaEditando}`));
     toast("Cuenta eliminada.", "success");
